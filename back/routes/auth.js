@@ -5,7 +5,6 @@ const jwtSecret = require('../secure/jwtSecret');
 const router = express.Router();
 const models = require('../models');
 
-
   
   router.post('/signin', (req, res) => {
     const { password, email } = req.body;
