@@ -43,16 +43,18 @@ const upload = multer({
     cb(null, true);
   },
   limits: {
-    fileSize: 3 * 1024 * 1024
+    fileSize: 5 * 1024 * 1024
   }
 });
 
 router.post("/", (req, res) => {
   const token = getToken(req);
   jwt.verify(token, jwtSecret, err => {
-    if (!err) {
+    if (!err ) {
       // !!!!!AJOUTER AWS!!!!! //
-      models.photo.create(req.body).then(photo => {
+      models.photo.create(req.body,{where : {
+        path: req.files[0].location
+      }}).then(photo => {
         res.status(201).send(photo);
       });
     } else {
