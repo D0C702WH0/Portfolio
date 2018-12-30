@@ -24,7 +24,7 @@ const storage = multerS3({
     cb(null, { fieldName: file.fieldname });
   },
   key: function(req, file, cb) {
-    cb(null);
+    cb(null, Date.now().toString().getFileExtension(file.mimetype));
   }
 });
 
