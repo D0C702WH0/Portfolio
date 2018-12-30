@@ -24,7 +24,12 @@ const storage = multerS3({
     cb(null, { fieldName: file.fieldname });
   },
   key: function(req, file, cb) {
-    cb(null, Date.now().toString().getFileExtension(file.mimetype));
+    cb(
+      null,
+      Date.now()
+        .toString()
+        .getFileExtension(file.mimetype)
+    );
   }
 });
 
@@ -50,13 +55,15 @@ const upload = multer({
 router.post("/", (req, res) => {
   const token = getToken(req);
   jwt.verify(token, jwtSecret, err => {
-    if (!err ) {
+    if (!err) {
       // !!!!!AJOUTER AWS!!!!! //
-      models.photo.create(req.body,{where : {
-        path: req.files[0].location
-      }}).then(photo => {
-        res.status(201).send(photo);
-      });
+      models.photo
+        .create(req.body, {
+          path: req.files[0].location
+        })
+        .then(photo => {
+          res.status(201).send(photo);
+        });
     } else {
       res.status(403);
     }
