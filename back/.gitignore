@@ -1,4 +1,6 @@
 /node_modules
 
 
-/secure
+/secure/jwtSecret.js
+
+.env

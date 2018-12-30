@@ -17,9 +17,10 @@ const models = require('../models');
           else {
             const tokenInfo = {
               id: admin.id,
-              pseudo : admin.name,
+              name : admin.name,
+              isAdmin: admin.isAdmin
             };
-            const token = jwt.sign(tokenInfo, jwtSecret);
+            const token = jwt.sign(tokenInfo, jwtSecret, {expiresIn:'1h'});
             res.header("Access-Control-Expose-Headers", "x-access-token");
             res.set("x-access-token", token);
             res.status(200);
