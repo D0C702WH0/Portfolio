@@ -3,33 +3,31 @@ const jwt = require("jsonwebtoken");
 const aws = require("aws-sdk");
 const multer = require("multer");
 const multerS3 = require("multer-s3");
-const fs = require("fs");
 const jwtSecret = require("../secure/jwtSecret");
 const router = express.Router();
 const models = require("../models");
 const getToken = require("../helpers/getToken");
 const getFileExtension = require("../helpers/getFileExtension");
+const s3Password = process.env.AWS_KEY;
+const s3Id = process.env.AWS_ID;
+require("dotenv").config();
 
 aws.config.update({
-  secretAccessKey: "DOTENV",
-  accessKeyId: "DOTENV"
+  secretAccessKey: s3Password,
+  accessKeyId: s3Id
 });
 
-var s3 = new aws.s3();
+const s3 = new aws.S3();
 
 const storage = multerS3({
   s3: s3,
-  bucket: "some-bucket",
+  acl: "public-read",
+  bucket: "sideprojectbp",
   metadata: function(req, file, cb) {
     cb(null, { fieldName: file.fieldname });
   },
   key: function(req, file, cb) {
-    cb(
-      null,
-      Date.now()
-        .toString()
-        .getFileExtension(file.mimetype)
-    );
+    cb(null, `${Date.now()}.${getFileExtension(file.mimetype)}`);
   }
 });
 
@@ -52,15 +50,16 @@ const upload = multer({
   }
 });
 
-router.post("/", (req, res) => {
+router.post("/", upload.single("photo"), (req, res) => {
   const token = getToken(req);
-  jwt.verify(token, jwtSecret, err => {
-    if (!err) {
-      // !!!!!AJOUTER AWS!!!!! //
+  jwt.verify(token, jwtSecret, (err, decode) => {
+    if (req.file && decode.isAdmin == 1) {
       models.photo
-        .create(req.body, {
-          path: req.files[0].location
-        })
+        .create(
+          req.body.concat({
+            path: req.files[0].location
+          })
+        )
         .then(photo => {
           res.status(201).send(photo);
         });
