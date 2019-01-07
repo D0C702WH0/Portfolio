@@ -22,6 +22,21 @@ router
         res.sendStatus(403);
       }
     });
-  });
+  })
+
+    /// Allows to see all categories ///
+
+    .get((req, res) => {
+      const token = getToken(req);
+      jwt.verify(token, jwtSecret, (err, decode) => {
+        if (!err && decode.isAdmin && decode.isAdmin === true) {
+          models.category.findAll().then(category => {
+            res.status(200).send(category);
+          });
+        } else {
+          res.sendStatus(403);
+        }
+      });
+    })
 
 module.exports = router;
