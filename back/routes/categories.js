@@ -39,4 +39,27 @@ router
       });
     })
 
+    /// Allows to remove active status to a category ///
+
+    .delete("/remove/:id", (req, res) => {
+      const token = getToken(req);
+      jwt.verify(token, jwtSecret, (err, decode) => {
+        if (!err && decode.isAdmin && decode.isAdmin === true) {
+          models.category
+            .update(
+              {
+                isActive: false
+              },
+              { where: { id: req.params.id } }
+            )
+            .then(category => {
+              res.status(200).send(category);
+            });
+        } else {
+          res.sendStatus(403);
+        }
+      });
+    });
+  
+
 module.exports = router;
