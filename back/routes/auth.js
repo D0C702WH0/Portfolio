@@ -4,6 +4,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const router = express.Router();
 const models = require("../models");
+const getToken = require("../helpers/getToken");
 const jwtSecret = process.env.JWT_SECRET;
 const validApiKey = process.env.API_KEY;
 
@@ -71,16 +72,18 @@ router
   .delete("/remove/:id", (req, res) => {
     const token = getToken(req);
     jwt.verify(token, jwtSecret, (err, decode) => {
+      console.log(decode);
+
       if (!err && decode.isAdmin && decode.isAdmin === true) {
         models.admin
           .update(
             {
               isAdmin: false
             },
-            { where: req.params.id }
+            { where: { id: req.params.id } }
           )
           .then(admin => {
-            res.sendStatus(200).send(admin);
+            res.status(200).send(admin);
           });
       } else {
         res.sendStatus(403);
