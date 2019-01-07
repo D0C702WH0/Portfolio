@@ -84,7 +84,7 @@ router
 
   /// Allows to remove access to an Admin ///
 
-  .delete("/users/remove/:id", (req, res) => {
+  .delete("/users/:id", (req, res) => {
     const token = getToken(req);
     jwt.verify(token, jwtSecret, (err, decode) => {
       if (!err && decode.isAdmin && decode.isAdmin === true) {
