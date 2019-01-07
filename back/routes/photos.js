@@ -1,16 +1,16 @@
+require("dotenv").config();
 const express = require("express");
 const jwt = require("jsonwebtoken");
 const aws = require("aws-sdk");
 const multer = require("multer");
 const multerS3 = require("multer-s3");
-const jwtSecret = require("../secure/jwtSecret");
 const router = express.Router();
 const models = require("../models");
 const getToken = require("../helpers/getToken");
 const getFileExtension = require("../helpers/getFileExtension");
 const s3Password = process.env.AWS_KEY;
 const s3Id = process.env.AWS_ID;
-require("dotenv").config();
+const jwtSecret = process.env.JWT_SECRET;
 
 aws.config.update({
   secretAccessKey: s3Password,
@@ -50,10 +50,14 @@ const upload = multer({
   }
 });
 
-router.post("/", upload.single("photo"), (req, res) => {
+router
+  .route("/")
+
+  .post(upload.single("photo"), (req, res) => {
   const token = getToken(req);
   jwt.verify(token, jwtSecret, (err, decode) => {
-    if (req.file && decode.isAdmin == 1) {
+
+    if (!err && req.file && decode.isAdmin && decode.isAdmin === true) {
       models.photo
         .create(
           req.body.concat({
@@ -64,7 +68,7 @@ router.post("/", upload.single("photo"), (req, res) => {
           res.status(201).send(photo);
         });
     } else {
-      res.status(403);
+      res.sendStatus(403);
     }
   });
 });
