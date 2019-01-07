@@ -5,25 +5,35 @@ const jwt = require("jsonwebtoken");
 const router = express.Router();
 const models = require("../models");
 const jwtSecret = process.env.JWT_SECRET;
+const validApiKey = process.env.API_KEY;
 
 router
 
+  /// Allows to create a new Admin ///
+
   .post("/signup", (req, res) => {
+    const { APIKEY } = req.query;
     const { password } = req.body;
-    bcrypt.hash(password, 10, (err, hash) => {
-      if (err) res.sendStatus(500);
-      else {
-        const adminData = {
-          ...req.body,
-          password: hash,
-          isAdmin:true
-        };
-        models.admin.create(adminData).then(admin => {
-          res.status(200).send(admin);
-        });
-      }
-    });
+    if (APIKEY === validApiKey) {
+      bcrypt.hash(password, 10, (err, hash) => {
+        if (err) res.sendStatus(500);
+        else {
+          const adminData = {
+            ...req.body,
+            password: hash,
+            isAdmin: true
+          };
+          models.admin.create(adminData).then(admin => {
+            res.status(200).send(admin);
+          });
+        }
+      });
+    } else {
+      res.sendStatus(403);
+    }
   })
+
+  /// Allows the Admin to log in ///
 
   .post("/signin", (req, res) => {
     const { password, email } = req.body;
@@ -54,6 +64,28 @@ router
           res.sendStatus(404);
         }
       });
+  })
+
+  /// Allows to remove access to an Admin ///
+
+  .delete("/remove/:id", (req, res) => {
+    const token = getToken(req);
+    jwt.verify(token, jwtSecret, (err, decode) => {
+      if (!err && decode.isAdmin && decode.isAdmin === true) {
+        models.admin
+          .update(
+            {
+              isAdmin: false
+            },
+            { where: req.params.id }
+          )
+          .then(admin => {
+            res.sendStatus(200).send(admin);
+          });
+      } else {
+        res.sendStatus(403);
+      }
+    });
   });
 
 module.exports = router;
