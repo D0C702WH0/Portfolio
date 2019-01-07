@@ -1,4 +1,6 @@
 require("dotenv").config();
+const Sequelize = require('sequelize');
+const op = Sequelize.Op;
 const express = require("express");
 const jwt = require("jsonwebtoken");
 const aws = require("aws-sdk");
@@ -52,27 +54,39 @@ const upload = multer({
 
 router
   .route("/")
-  
+
   /// Allows to post a new photo ///
 
   .post(upload.single("photo"), (req, res) => {
-  const token = getToken(req);
-  jwt.verify(token, jwtSecret, (err, decode) => {
+    const token = getToken(req);
+    const photo = {
+      ...req.body,
+      path: req.file.location
+    };
 
-    if (!err && req.file && decode.isAdmin && decode.isAdmin === true) {
-      models.photo
-        .create(
-          req.body.concat({
-            path: req.files[0].location
-          })
-        )
-        .then(photo => {
-          res.status(201).send(photo);
+    jwt.verify(token, jwtSecret, (err, decode) => {
+      if (!err && req.file && decode.isAdmin && decode.isAdmin === true) {
+        models.photo.create(photo).then(pix => {
+          models.category
+            .findAll({
+              where: {
+                id: {
+                  [op.or]: req.body.categories.split(',')
+                }
+              }
+            })
+            .then(categories =>{
+              console.log(categories, pix)
+              
+              pix
+                .setCategories(categories)
+                .then(() => res.status(200).send("ok"))
+            });
         });
-    } else {
-      res.sendStatus(403);
-    }
+      } else {
+        res.sendStatus(403);
+      }
+    });
   });
-});
 
 module.exports = router;
