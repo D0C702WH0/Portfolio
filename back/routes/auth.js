@@ -67,9 +67,25 @@ router
       });
   })
 
-  /// Allows to remove access to an Admin ///
+  /// Allows to see all Admins ///
 
-  .delete("/remove/:id", (req, res) => {
+  .get("/users", (req, res) => {
+    const token = getToken(req);
+    jwt.verify(token, jwtSecret, (err, decode) => {
+      if (!err && decode.isAdmin && decode.isAdmin === true) {
+        models.admin.findAll().then(admin => {
+          res.status(200).send(admin);
+        });
+      } else {
+        res.sendStatus(403);
+      }
+    });
+  })
+
+   /// Allows to remove access to an Admin ///
+
+
+  .delete("/users/remove/:id", (req, res) => {
     const token = getToken(req);
     jwt.verify(token, jwtSecret, (err, decode) => {
       console.log(decode);
