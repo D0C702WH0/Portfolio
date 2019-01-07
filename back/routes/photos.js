@@ -52,6 +52,8 @@ const upload = multer({
 
 router
   .route("/")
+  
+  /// Allows to post a new photo ///
 
   .post(upload.single("photo"), (req, res) => {
   const token = getToken(req);

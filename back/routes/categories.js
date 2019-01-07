@@ -9,6 +9,8 @@ const jwtSecret = process.env.JWT_SECRET;
 router
   .route("/")
 
+/// Allows to create a new category ///
+
   .post((req, res) => {
     const token = getToken(req);
     jwt.verify(token, jwtSecret, (err, decode) => {
@@ -17,7 +19,7 @@ router
           res.status(201).send(category);
         });
       } else {
-        res.status(403);
+        res.sendStatus(403);
       }
     });
   });
