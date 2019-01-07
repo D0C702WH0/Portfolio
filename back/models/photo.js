@@ -10,7 +10,7 @@ module.exports = (sequelize, DataTypes) => {
     // associations can be defined here
     models.photo.belongsToMany(models.category, {
       through:"category_photo",
-      foreignKey: 'Idcategory'
+      foreignKey: 'IdPhoto'
     })
   };
   return photo;

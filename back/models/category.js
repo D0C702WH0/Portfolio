@@ -8,7 +8,7 @@ module.exports = (sequelize, DataTypes) => {
   category.associate = function(models) {
     models.category.belongsToMany(models.photo, {
       through:"category_photo",
-      foreignKey: 'IdPhoto'
+      foreignKey: 'IdCategory'
     })
   };
   return category;

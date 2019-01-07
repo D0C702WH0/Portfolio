@@ -37,11 +37,11 @@ router
         res.sendStatus(403);
       }
     });
-  })
+  });
 
   /// Allows to remove active status to a category ///
 
-  .delete("/:id", (req, res) => {
+  router.delete("/:id", (req, res) => {
     const token = getToken(req);
     jwt.verify(token, jwtSecret, (err, decode) => {
       if (!err && decode.isAdmin && decode.isAdmin === true) {
@@ -63,7 +63,7 @@ router
 
   /// Allows to get all pictures with the same category ///
 
-  .get("/:id/pictures", (req, res) => {
+  router.get("/:id/pictures", (req, res) => {
     const token = getToken(req);
     jwt.verify(token, jwtSecret, (err, decode) => {
       if (!err && decode.isAdmin && decode.isAdmin === true) {
