@@ -21,7 +21,7 @@ module.exports = {
         allowNull: true,
         type: Sequelize.STRING
       },
-      isAdmin: {
+      isActive: {
         allowNull: false,
         type: Sequelize.BOOLEAN
       },
