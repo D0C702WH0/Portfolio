@@ -1,6 +1,5 @@
 /node_modules
 
-
-/secure/jwtSecret.js
-
 .env
+
+/seeders
