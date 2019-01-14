@@ -1,5 +1,5 @@
 require("dotenv").config();
-const Sequelize = require('sequelize');
+const Sequelize = require("sequelize");
 const op = Sequelize.Op;
 const express = require("express");
 const jwt = require("jsonwebtoken");
@@ -55,6 +55,21 @@ const upload = multer({
 router
   .route("/")
 
+  /// Allows to get all pictures active or not as an admin ///
+
+  .get((req, res) => {
+    const token = getToken(req);
+    jwt.verify(token, jwtSecret, (err, decode) => {
+      if (!err && decode.isAdmin && decode.isAdmin === true) {
+        models.photo.findAll().then(photo => {
+          res.status(200).send(photo);
+        });
+      } else {
+        res.sendStatus(403);
+      }
+    });
+  })
+
   /// Allows to post a new photo ///
 
   .post(upload.single("photo"), (req, res) => {
@@ -71,16 +86,16 @@ router
             .findAll({
               where: {
                 id: {
-                  [op.or]: req.body.categories.split(',')
+                  [op.or]: req.body.categories.split(",")
                 }
               }
             })
-            .then(categories =>{
-              console.log(categories, pix)
-              
+            .then(categories => {
+              console.log(categories, pix);
+
               pix
                 .setCategories(categories)
-                .then(() => res.status(200).send("ok"))
+                .then(() => res.status(200).send("ok"));
             });
         });
       } else {
@@ -88,5 +103,27 @@ router
       }
     });
   });
+
+/// Allows to remove active status to a photo as an admin ///
+
+router.delete("/:id", (req, res) => {
+  const token = getToken(req);
+  jwt.verify(token, jwtSecret, (err, decode) => {
+    if (!err && decode.isAdmin && decode.isAdmin === true) {
+      models.photo
+        .update(
+          {
+            isActive: false
+          },
+          { where: { id: req.params.id } }
+        )
+        .then(photo => {
+          res.status(200).send(photo);
+        });
+    } else {
+      res.sendStatus(403);
+    }
+  });
+});
 
 module.exports = router;
