@@ -69,10 +69,12 @@ router.get("/:id/pictures", (req, res) => {
       where: {
         id: req.params.id
       },
-      include: {
-        model: photo,
-        where: { isActive: true }
-      }
+      include: [
+        {
+          model: photo,
+          where: { isActive: true }
+        }
+      ]
     })
     .then(category => {
       res.status(200).send(category);

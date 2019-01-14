@@ -63,14 +63,16 @@ router
     jwt.verify(token, jwtSecret, (err, decode) => {
       if (!err && decode.isAdmin && decode.isAdmin === true) {
         models.photo
-          .findAll({
-            limit: 20,
-            offset: 20,
-            include: {
-              model: categorie
-            }
+          .findAndCountAll({
+            include: [
+              {
+                model: models.category
+              }
+            ]
           })
           .then(photo => {
+            console.log(photo);
+
             res.status(200).send(photo);
           });
       } else {
@@ -83,7 +85,7 @@ router
 
   .post(upload.single("photo"), (req, res) => {
     console.log(req.file);
-    
+
     const token = getToken(req);
     const photo = {
       ...req.body,
@@ -91,7 +93,12 @@ router
     };
 
     jwt.verify(token, jwtSecret, (err, decode) => {
-      if (!err && req.file.location && decode.isAdmin && decode.isAdmin === true) {
+      if (
+        !err &&
+        req.file.location &&
+        decode.isAdmin &&
+        decode.isAdmin === true
+      ) {
         models.photo.create(photo).then(pix => {
           models.category
             .findAll({
