@@ -55,22 +55,30 @@ const upload = multer({
 router
   .route("/")
 
-  /// Allows to get all pictures active or not as an admin ///
+  /// Allows to get all pictures, active or not, as an admin, including their categories///
 
   .get((req, res) => {
     const token = getToken(req);
     jwt.verify(token, jwtSecret, (err, decode) => {
       if (!err && decode.isAdmin && decode.isAdmin === true) {
-        models.photo.findAll().then(photo => {
-          res.status(200).send(photo);
-        });
+        models.photo
+          .findAll({
+            limit: 20,
+            offset: 20,
+            include: {
+              model: categorie
+            }
+          })
+          .then(photo => {
+            res.status(200).send(photo);
+          });
       } else {
         res.sendStatus(403);
       }
     });
   })
 
-  /// Allows to post a new photo ///
+  /// Allows to post a new photo as an admin ///
 
   .post(upload.single("photo"), (req, res) => {
     const token = getToken(req);
