@@ -5,7 +5,7 @@
 
 Blog photo (fullstack project)
 
-|         | Are           | status  |
+|         | Stack           | status  |
 | ------- |:-------------:| -------:|
 | Back    | NodeJs / Sequelize / Photos are uploaded on AWS S3 | Doing   |
 | Front   | React / Redux /React Admin     | To do   |
