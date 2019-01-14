@@ -40,7 +40,8 @@ const upload = multer({
     if (
       !(
         file.mimetype.includes("image/png") ||
-        file.mimetype.includes("image/jpg")
+        file.mimetype.includes("image/jpg") ||
+        file.mimetype.includes("image/jpeg")
       )
     ) {
       cb(new Error("Mauvais format de fichier"));
@@ -81,6 +82,8 @@ router
   /// Allows to post a new photo as an admin ///
 
   .post(upload.single("photo"), (req, res) => {
+    console.log(req.file);
+    
     const token = getToken(req);
     const photo = {
       ...req.body,
@@ -88,7 +91,7 @@ router
     };
 
     jwt.verify(token, jwtSecret, (err, decode) => {
-      if (!err && req.file && decode.isAdmin && decode.isAdmin === true) {
+      if (!err && req.file.location && decode.isAdmin && decode.isAdmin === true) {
         models.photo.create(photo).then(pix => {
           models.category
             .findAll({
