@@ -9,7 +9,7 @@ const jwtSecret = process.env.JWT_SECRET;
 router
   .route("/")
 
-  /// Allows to create a new category ///
+  /// Allows to create a new category as an admin///
 
   .post((req, res) => {
     const token = getToken(req);
@@ -24,7 +24,7 @@ router
     });
   })
 
-  /// Allows to see all categories ///
+  /// Allows to see all categories as an admin ///
 
   .get((req, res) => {
     const token = getToken(req);
@@ -39,50 +39,46 @@ router
     });
   });
 
-  /// Allows to remove active status to a category ///
+/// Allows to remove active status to a category as an admin ///
 
-  router.delete("/:id", (req, res) => {
-    const token = getToken(req);
-    jwt.verify(token, jwtSecret, (err, decode) => {
-      if (!err && decode.isAdmin && decode.isAdmin === true) {
-        models.category
-          .update(
-            {
-              isActive: false
-            },
-            { where: { id: req.params.id } }
-          )
-          .then(category => {
-            res.status(200).send(category);
-          });
-      } else {
-        res.sendStatus(403);
-      }
-    });
-  })
-
-  /// Allows to get all pictures with the same category ///
-
-  router.get("/:id/pictures", (req, res) => {
-    const token = getToken(req);
-    jwt.verify(token, jwtSecret, (err, decode) => {
-      if (!err && decode.isAdmin && decode.isAdmin === true) {
-        models.category
-          .findAll({
-            where: {
-              id: req.params.id
-            },
-            include: {
-              model: photo
-            }
-          })
-          .then(category => {
-            res.status(200).send(category);
-          });
-      } else {
-        res.sendStatus(403);
-      }
-    });
+router.delete("/:id", (req, res) => {
+  const token = getToken(req);
+  jwt.verify(token, jwtSecret, (err, decode) => {
+    if (!err && decode.isAdmin && decode.isAdmin === true) {
+      models.category
+        .update(
+          {
+            isActive: false
+          },
+          { where: { id: req.params.id } }
+        )
+        .then(category => {
+          res.status(200).send(category);
+        });
+    } else {
+      res.sendStatus(403);
+    }
   });
+});
+
+/// Allows to get all active pictures with the same category ///
+
+router.get("/:id/pictures", (req, res) => {
+  models.category
+    .findAll({
+      where: {
+        id: req.params.id
+      },
+      include: [
+        {
+          model: photo,
+          where: { isActive: true }
+        }
+      ]
+    })
+    .then(category => {
+      res.status(200).send(category);
+    });
+});
 
 module.exports = router;
