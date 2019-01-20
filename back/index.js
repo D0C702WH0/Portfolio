@@ -8,6 +8,7 @@ const models = require("./models");
 const routerAuth = require("./routes/auth");
 const routerPhoto = require("./routes/photos");
 const routerCategory = require("./routes/categories");
+const routerContact = require("./routes/contact");
 
 app.use(cors());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -17,6 +18,7 @@ app.use(morgan("dev"));
 app.use("/auth", routerAuth);
 app.use("/photo", routerPhoto);
 app.use("/category", routerCategory);
+app.use("/contact", routerContact);
 
 models.sequelize
   .sync()
