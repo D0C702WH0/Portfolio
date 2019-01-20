@@ -4,7 +4,8 @@ const sendEmail = require("../helpers/sendEmail");
 const contact = require("../helpers/emailTemplate/contact");
 
 router.get("/", (req, res) => {
-  sendEmail(contact(req.email, req.subject, req.text));
+  sendEmail(contact(req.body.email, req.body.subject, req.body.text));
+  res.sendStatus(200);
 });
 
 module.exports = router;
