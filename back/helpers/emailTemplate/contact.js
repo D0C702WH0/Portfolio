@@ -1,11 +1,10 @@
-const email = process.env.EMAIL
+const email = process.env.EMAIL;
 
 module.exports = (from, subject, text) => {
-    return {
-       from,
-       to: email ,
-       subject,
-       html: `<p>${text}</p>`
-     };
-   };
-   
+  return {
+    from: `Portoflio${email}`,
+    to: email,
+    subject,
+    html: `<p>${text}</p><p>${from}</p>`
+  };
+};
