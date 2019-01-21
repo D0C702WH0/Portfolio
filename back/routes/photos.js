@@ -64,6 +64,27 @@ router
       if (!err && decode.isAdmin && decode.isAdmin === true) {
         models.photo
           .findAndCountAll({
+            offset: 0,
+            limit: 10,
+            include: [
+              {
+                model: models.category
+              }
+            ]
+          })
+          .then(photo => {
+            console.log(photo);
+
+            res.status(200).send(photo);
+          });
+      }
+      /// Allows to get all active pictures and associated categories for non Admin ///
+      if (!token) {
+        models.photo
+          .findAndCountAll({
+            offset: 0,
+            limit: 10,
+            where: { isActive: true },
             include: [
               {
                 model: models.category
@@ -122,21 +143,22 @@ router
     });
   });
 
-/// Allows to remove active status to a photo as an admin ///
+/// Allows to change active status to a photo as an admin ///
 
 router.delete("/:id", (req, res) => {
   const token = getToken(req);
+  const toggleActive = req.body.isActive === true ? true : false;
   jwt.verify(token, jwtSecret, (err, decode) => {
     if (!err && decode.isAdmin && decode.isAdmin === true) {
       models.photo
         .update(
           {
-            isActive: false
+            isActive: toggleActive
           },
           { where: { id: req.params.id } }
         )
         .then(photo => {
-          res.status(200).send(photo);
+          res.status(200).send(photo,"ok");
         });
     } else {
       res.sendStatus(403);
