@@ -75,11 +75,14 @@ router
           .then(photo => {
             console.log(photo);
 
-            res.status(200).send(photo);
+            res
+              .status(200)
+              .header("X-Total-Count", photo.count)
+              .send(photo);
           });
       }
       /// Allows to get all active pictures and associated categories for non Admin ///
-      if (!token) {
+      else if (!token) {
         models.photo
           .findAndCountAll({
             offset: 0,
@@ -89,12 +92,19 @@ router
               {
                 model: models.category
               }
-            ]
+            ],
+            raw:true
           })
           .then(photo => {
             console.log(photo);
 
-            res.status(200).send(photo);
+            photo.data = photo.rows;
+
+            res
+              .status(200)
+              .header("Content-Range", `photo 0-10/${photo.count}`)
+              .header("X-Total-Count", photo.count)
+              .send(photo);
           });
       } else {
         res.sendStatus(403);
@@ -158,7 +168,7 @@ router.delete("/:id", (req, res) => {
           { where: { id: req.params.id } }
         )
         .then(photo => {
-          res.status(200).send(photo,"ok");
+          res.status(200).send(photo, "ok");
         });
     } else {
       res.sendStatus(403);

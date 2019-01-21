@@ -10,7 +10,15 @@ const routerPhoto = require("./routes/photos");
 const routerCategory = require("./routes/categories");
 const routerContact = require("./routes/contact");
 
-app.use(cors());
+app.use(
+  cors({
+    exposedHeaders: ["Content-Range", "X-Content-Range", "X-Total-Count"]
+  })
+);
+// app.use((req, res, next) => {
+//   res.header("Content-Range", "X-Total-Count");
+//   next();
+// });
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(morgan("dev"));
