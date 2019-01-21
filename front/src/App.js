@@ -3,6 +3,7 @@ import { Admin, Resource, fetchUtils } from "react-admin";
 import { PhotoList, PhotoCreate } from "./components/Photo";
 import simpleReactProvider from "ra-data-simple-rest";
 import Dashboard from "./components/Dashboard";
+import authProvider from "./components/authProvider";
 
 const httpClient = (url, options = {}) => {
   if (!options.headers) {
@@ -13,11 +14,13 @@ const httpClient = (url, options = {}) => {
   return fetchUtils.fetchJson(url, options);
 };
 
+
 class App extends Component {
   render() {
     return (
       <div>
         <Admin
+          authProvider={authProvider}
           dashboard={Dashboard}
           dataProvider={simpleReactProvider("http://localhost:5000", httpClient)}
         >
