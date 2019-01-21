@@ -62,6 +62,8 @@ router
     const token = getToken(req);
     jwt.verify(token, jwtSecret, (err, decode) => {
       if (!err && decode.isAdmin && decode.isAdmin === true) {
+        console.log("ADMION");
+
         models.photo
           .findAndCountAll({
             offset: 0,
@@ -77,8 +79,9 @@ router
 
             res
               .status(200)
+              .header("Content-Range", `photo 0-10/${photo.count}`)
               .header("X-Total-Count", photo.count)
-              .send(photo);
+              .send(photo.rows);
           });
       }
       /// Allows to get all active pictures and associated categories for non Admin ///
@@ -93,18 +96,14 @@ router
                 model: models.category
               }
             ],
-            raw:true
+            raw: true
           })
           .then(photo => {
-            console.log(photo);
-
-            photo.data = photo.rows;
-
             res
               .status(200)
               .header("Content-Range", `photo 0-10/${photo.count}`)
               .header("X-Total-Count", photo.count)
-              .send(photo);
+              .send(photo.rows);
           });
       } else {
         res.sendStatus(403);
@@ -115,8 +114,6 @@ router
   /// Allows to post a new photo as an admin ///
 
   .post(upload.single("photo"), (req, res) => {
-    console.log(req.file);
-
     const token = getToken(req);
     const photo = {
       ...req.body,
@@ -140,8 +137,6 @@ router
               }
             })
             .then(categories => {
-              console.log(categories, pix);
-
               pix
                 .setCategories(categories)
                 .then(() => res.status(200).send("ok"));

@@ -63,8 +63,6 @@ router
         }
       });
     } else {
-      console.log("PROUT");
-
       res.sendStatus(404);
     }
   })
