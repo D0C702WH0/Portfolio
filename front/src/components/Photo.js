@@ -8,13 +8,16 @@ import {
   DateField,
   TextField,
   EditButton,
-  ArrayField
+  ArrayField,
+  ImageField
 } from "react-admin";
 
 export const PhotoList = props => (
   <List {...props}>
     <Datagrid>
-      <TextField source="id" />
+      <TextField source="name" />
+      <TextField source="categories.name" />
+      <ImageField source="path" />
     </Datagrid>
   </List>
 );
