@@ -36,35 +36,37 @@ router
 
   /// Allows the Admin to log in ///
 
-  .post("/signin", (req, res) => {
-    const { password, email } = req.body;
-    models.admin
-      .findOne({
-        where: {
-          email
-        }
-      })
-      .then(admin => {
-        if (admin) {
-          bcrypt.compare(password, admin.password, (err, match) => {
-            if (err || !match) res.sendStatus(403);
-            else {
-              const tokenInfo = {
-                id: admin.id,
-                name: admin.name,
-                isAdmin: admin.isAdmin
-              };
-              const token = jwt.sign(tokenInfo, jwtSecret, { expiresIn: "1h" });
-              res.header("Access-Control-Expose-Headers", "x-access-token");
-              res.set("x-access-token", token);
-              res.status(200);
-              res.send(admin);
-            }
-          });
-        } else {
-          res.sendStatus(404);
+  .post("/signin", async (req, res) => {
+    const { password, username } = req.body;
+
+    data = await models.admin.findOne({
+      where: {
+        email: username,
+        isAdmin: 1
+      }
+    });
+
+    if (data) {
+      bcrypt.compare(password, data.password, (err, match) => {
+        if (err || !match) res.sendStatus(403);
+        else {
+          const tokenInfo = {
+            id: data.id,
+            name: data.name,
+            isAdmin: data.isAdmin
+          };
+          const token = jwt.sign(tokenInfo, jwtSecret, { expiresIn: "1h" });
+          res.header("Access-Control-Expose-Headers", "x-access-token");
+          res.set("x-access-token", token);
+          res.status(200);
+          res.send(data);
         }
       });
+    } else {
+      console.log("PROUT");
+
+      res.sendStatus(404);
+    }
   })
 
   /// Allows to see all Admins ///
