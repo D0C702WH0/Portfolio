@@ -62,6 +62,8 @@ router
     const token = getToken(req);
     jwt.verify(token, jwtSecret, (err, decode) => {
       if (!err && decode.isAdmin && decode.isAdmin === true) {
+        console.log("ADMION");
+
         models.photo
           .findAndCountAll({
             offset: 0,
@@ -75,11 +77,15 @@ router
           .then(photo => {
             console.log(photo);
 
-            res.status(200).send(photo);
+            res
+              .status(200)
+              .header("Content-Range", `photo 0-10/${photo.count}`)
+              .header("X-Total-Count", photo.count)
+              .send(photo.rows);
           });
       }
       /// Allows to get all active pictures and associated categories for non Admin ///
-      if (!token) {
+      else if (!token) {
         models.photo
           .findAndCountAll({
             offset: 0,
@@ -89,12 +95,15 @@ router
               {
                 model: models.category
               }
-            ]
+            ],
+            raw: true
           })
           .then(photo => {
-            console.log(photo);
-
-            res.status(200).send(photo);
+            res
+              .status(200)
+              .header("Content-Range", `photo 0-10/${photo.count}`)
+              .header("X-Total-Count", photo.count)
+              .send(photo.rows);
           });
       } else {
         res.sendStatus(403);
@@ -105,8 +114,6 @@ router
   /// Allows to post a new photo as an admin ///
 
   .post(upload.single("photo"), (req, res) => {
-    console.log(req.file);
-
     const token = getToken(req);
     const photo = {
       ...req.body,
@@ -130,8 +137,6 @@ router
               }
             })
             .then(categories => {
-              console.log(categories, pix);
-
               pix
                 .setCategories(categories)
                 .then(() => res.status(200).send("ok"));
@@ -158,7 +163,7 @@ router.delete("/:id", (req, res) => {
           { where: { id: req.params.id } }
         )
         .then(photo => {
-          res.status(200).send(photo,"ok");
+          res.status(200).send(photo, "ok");
         });
     } else {
       res.sendStatus(403);

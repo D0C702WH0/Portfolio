@@ -3,6 +3,7 @@
     "storage": "./db.sqlite3",
     "database": "database_development",
     "dialect": "sqlite",
+    "logging" : false,
     "operatorsAliases": false
   },
   "test": {
