@@ -53,11 +53,12 @@ router
           const tokenInfo = {
             id: data.id,
             name: data.name,
-            isAdmin: data.isAdmin
+            role: data.isAdmin
           };
           const token = jwt.sign(tokenInfo, jwtSecret, { expiresIn: "1h" });
           res.header("Access-Control-Expose-Headers", "x-access-token");
           res.set("x-access-token", token);
+
           res.status(200);
           res.send(data);
         }
