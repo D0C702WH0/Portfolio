@@ -59,11 +59,9 @@ router
   /// Allows to get all pictures, active or not, as an admin, including their categories///
 
   .get((req, res) => {
-    const token = getToken(req);
+    const token = req.headers["x-access-token"];
     jwt.verify(token, jwtSecret, (err, decode) => {
       if (!err && decode.isAdmin && decode.isAdmin === true) {
-        console.log("ADMION");
-
         models.photo
           .findAndCountAll({
             offset: 0,
@@ -75,8 +73,6 @@ router
             ]
           })
           .then(photo => {
-            console.log(photo);
-
             res
               .status(200)
               .header("Content-Range", `photo 0-10/${photo.count}`)
