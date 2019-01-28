@@ -91,8 +91,7 @@ router
               {
                 model: models.category
               }
-            ],
-            raw: true
+            ]
           })
           .then(photo => {
             res

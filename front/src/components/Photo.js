@@ -5,18 +5,22 @@ import {
   Create,
   SimpleForm,
   TextInput,
-  DateField,
   TextField,
-  EditButton,
+  ImageField,
+  ChipField,
   ArrayField,
-  ImageField
+  SingleFieldList
 } from "react-admin";
 
 export const PhotoList = props => (
   <List {...props}>
     <Datagrid>
       <TextField source="name" />
-      <TextField source="categories.name" />
+      <ArrayField source="categories">
+        <SingleFieldList>
+          <ChipField source="name" />
+        </SingleFieldList>
+      </ArrayField>
       <ImageField source="path" />
     </Datagrid>
   </List>
