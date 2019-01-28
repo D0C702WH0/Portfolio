@@ -8,10 +8,12 @@ export default (type, params) => {
       username: params.username,
       password: params.password
     };
-    const request = `${apiDomain}auth/signin`;
+    const request = `${apiDomain}/auth/signin`;
     axios
       .post(request, body)
       .then(res => {
+        console.log(res.headers);
+        
         localStorage.setItem("token", res.headers["x-access-token"]);
       })
       .catch();
