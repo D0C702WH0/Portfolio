@@ -27,11 +27,17 @@ router
   /// Allows to see all categories as an admin ///
 
   .get((req, res) => {
-    const token = getToken(req);
+    console.log("VA DANS CATEGORIES");
+    
+  const token = req.headers.authorization ? getToken(req) : req.headers["x-access-token"];
     jwt.verify(token, jwtSecret, (err, decode) => {
       if (!err && decode.isAdmin && decode.isAdmin === true) {
+        console.log("RECUPERE DECODE");
+        
         models.category.findAll().then(category => {
           res.status(200).send(category);
+          console.log("CATEGORY", category);
+          
         });
       } else {
         res.sendStatus(403);

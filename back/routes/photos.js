@@ -110,7 +110,7 @@ router
   /// Allows to post a new photo as an admin ///
 
   .post(upload.single("photo"), (req, res) => {
-    const token = getToken(req);
+    const token = req.headers["x-access-token"];
     const photo = {
       ...req.body,
       path: req.file.location
@@ -146,11 +146,18 @@ router
 
 /// Allows to change active status to a photo as an admin ///
 
-router.delete("/:id", (req, res) => {
-  const token = getToken(req);
-  const toggleActive = req.body.isActive === true ? true : false;
+router.put("/:id", (req, res) => {
+  const token = req.headers.authorization ? getToken(req) : req.headers["x-access-token"];
+  const toggleActive = req.body.isActive == 1 ? 1 : 0;
   jwt.verify(token, jwtSecret, (err, decode) => {
+    console.log("VA DANS TOGGLE", toggleActive);
+    console.log("TOKEN", token);
+    console.log("REQ AUTH", req.headers.authorization);
+    
+    
+
     if (!err && decode.isAdmin && decode.isAdmin === true) {
+      
       models.photo
         .update(
           {
@@ -159,7 +166,7 @@ router.delete("/:id", (req, res) => {
           { where: { id: req.params.id } }
         )
         .then(photo => {
-          res.status(200).send(photo, "ok");
+          res.status(200).send(photo);
         });
     } else {
       res.sendStatus(403);

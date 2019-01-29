@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { Switch, Route } from "react-router-dom";
 
 import { Admin, Resource, fetchUtils } from "react-admin";
-import { PhotoList, PhotoCreate } from "./components/Photo";
+import { PhotoList, PhotoEdit, PhotoCreate } from "./components/Photo";
 import simpleReactProvider from "ra-data-simple-rest";
 import Dashboard from "./components/Dashboard";
 import authProvider from "./components/authProvider";
@@ -32,7 +32,7 @@ class App extends Component {
                 httpClient
               )}
             >
-              <Resource name="photo" list={PhotoList} create={PhotoCreate} />
+              <Resource name="photo" list={PhotoList} create={PhotoCreate} edit={PhotoEdit}/>
             </Admin>
           </Route>
         </Switch>

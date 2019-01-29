@@ -3,19 +3,26 @@ import {
   List,
   Datagrid,
   Create,
+  Edit,
   SimpleForm,
-  TextInput,
-  TextField,
   ImageField,
+  ImageInput,
+  ReferenceArrayInput,
+  SelectArrayInput,
+  TextInput,
+  EditButton,
+  TextField,
   ChipField,
   ArrayField,
-  SingleFieldList
+  SingleFieldList,
+  BooleanInput
 } from "react-admin";
 
 export const PhotoList = props => (
   <List {...props}>
     <Datagrid>
       <TextField source="name" />
+      <TextField source="isActive" />
       <ArrayField source="categories">
         <SingleFieldList>
           <ChipField source="name" />
@@ -26,10 +33,31 @@ export const PhotoList = props => (
   </List>
 );
 
+export const PhotoEdit = props => (
+  <Edit {...props}>
+    <SimpleForm>
+      <Datagrid>
+        <BooleanInput label="Publier" source="isActive" />
+        <EditButton />
+      </Datagrid>
+    </SimpleForm>
+  </Edit>
+);
+
 export const PhotoCreate = props => (
   <Create {...props}>
     <SimpleForm>
-      <TextInput source="id" />
+      <ReferenceArrayInput reference="category" source="name">
+        <SelectArrayInput optionText="name" />
+      </ReferenceArrayInput>
+      <ImageInput
+        source="pictures"
+        label="Related pictures"
+        accept="image/*"
+        placeholder={<p>Drop your file here</p>}
+      >
+        <ImageField source="src" title="title" />
+      </ImageInput>
     </SimpleForm>
   </Create>
 );
