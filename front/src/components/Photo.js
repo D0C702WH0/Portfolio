@@ -9,7 +9,10 @@ import {
   ImageInput,
   ReferenceArrayInput,
   SelectArrayInput,
-  TextInput,
+  SimpleShowLayout,
+  Show,
+  RichTextField,
+  DateField,
   EditButton,
   TextField,
   ChipField,
@@ -29,6 +32,7 @@ export const PhotoList = props => (
         </SingleFieldList>
       </ArrayField>
       <ImageField source="path" />
+      <EditButton />
     </Datagrid>
   </List>
 );
@@ -36,23 +40,29 @@ export const PhotoList = props => (
 export const PhotoEdit = props => (
   <Edit {...props}>
     <SimpleForm>
-      <Datagrid>
-        <BooleanInput label="Publier" source="isActive" />
-        <EditButton />
-      </Datagrid>
+      <BooleanInput label="Publier" source="isActive" />
     </SimpleForm>
   </Edit>
 );
 
+export const PhotoShow = props => (
+  <Show {...props}>
+    <SimpleShowLayout>
+      <TextField source="name" />
+      <RichTextField source="description" />
+      <DateField label="Publication date" source="created_at" />
+    </SimpleShowLayout>
+  </Show>
+);
 export const PhotoCreate = props => (
   <Create {...props}>
     <SimpleForm>
-      <ReferenceArrayInput reference="category" source="name">
+      <ReferenceArrayInput reference="category" source="id">
         <SelectArrayInput optionText="name" />
       </ReferenceArrayInput>
       <ImageInput
-        source="pictures"
-        label="Related pictures"
+        source="photo"
+        label="photo"
         accept="image/*"
         placeholder={<p>Drop your file here</p>}
       >

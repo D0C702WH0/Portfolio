@@ -2,8 +2,9 @@ import React, { Component } from "react";
 import { Switch, Route } from "react-router-dom";
 
 import { Admin, Resource, fetchUtils } from "react-admin";
-import { PhotoList, PhotoEdit, PhotoCreate } from "./components/Photo";
+import { PhotoList, PhotoEdit, PhotoCreate, PhotoShow } from "./components/Photo";
 import simpleReactProvider from "ra-data-simple-rest";
+import jsonServerProvider from "ra-data-json-server";
 import Dashboard from "./components/Dashboard";
 import authProvider from "./components/authProvider";
 
@@ -27,12 +28,13 @@ class App extends Component {
             <Admin
               authProvider={authProvider}
               dashboard={Dashboard}
-              dataProvider={simpleReactProvider(
+              dataProvider={jsonServerProvider(
                 `${apiDomain}`,
                 httpClient
               )}
             >
-              <Resource name="photo" list={PhotoList} create={PhotoCreate} edit={PhotoEdit}/>
+              <Resource name="photo" list={PhotoList} create={PhotoCreate} edit={PhotoEdit} show={PhotoShow}/>
+              <Resource name="category"/>
             </Admin>
           </Route>
         </Switch>

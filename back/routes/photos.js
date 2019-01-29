@@ -144,34 +144,46 @@ router
     });
   });
 
-/// Allows to change active status to a photo as an admin ///
+router
+  .route("/:id")
 
-router.put("/:id", (req, res) => {
-  const token = req.headers.authorization ? getToken(req) : req.headers["x-access-token"];
-  const toggleActive = req.body.isActive == 1 ? 1 : 0;
-  jwt.verify(token, jwtSecret, (err, decode) => {
-    console.log("VA DANS TOGGLE", toggleActive);
-    console.log("TOKEN", token);
-    console.log("REQ AUTH", req.headers.authorization);
-    
-    
-
-    if (!err && decode.isAdmin && decode.isAdmin === true) {
-      
-      models.photo
-        .update(
-          {
-            isActive: toggleActive
-          },
-          { where: { id: req.params.id } }
-        )
-        .then(photo => {
+  .get((req, res) => {
+    const token = req.headers.authorization
+      ? getToken(req)
+      : req.headers["x-access-token"];
+    jwt.verify(token, jwtSecret, (err, decode) => {
+      if (!err && decode.isAdmin === true) {
+        models.photo.findOne().then(photo => {
           res.status(200).send(photo);
         });
-    } else {
-      res.sendStatus(403);
-    }
+      } else {
+        res.sendStatus(403);
+      }
+    });
+  })
+  /// Allows to change active status to a photo as an admin ///
+
+  .put((req, res) => {
+    const token = req.headers.authorization
+      ? getToken(req)
+      : req.headers["x-access-token"];
+    const toggleActive = req.body.isActive;
+    jwt.verify(token, jwtSecret, (err, decode) => {
+      if (!err && decode.isAdmin && decode.isAdmin === true) {
+        models.photo
+          .update(
+            {
+              isActive: toggleActive
+            },
+            { where: { id: req.params.id } }
+          )
+          .then(photo => {
+            res.status(200).send(photo);
+          });
+      } else {
+        res.sendStatus(403);
+      }
+    });
   });
-});
 
 module.exports = router;

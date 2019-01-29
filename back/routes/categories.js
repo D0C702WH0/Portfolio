@@ -47,7 +47,24 @@ router
 
 /// Allows to remove active status to a category as an admin ///
 
-router.delete("/:id", (req, res) => {
+router.route("/:id")
+
+.get((req, res) => {
+  const token = req.headers.authorization
+    ? getToken(req)
+    : req.headers["x-access-token"];
+  jwt.verify(token, jwtSecret, (err, decode) => {
+    if (!err && decode.isAdmin === true) {
+      models.category.findOne().then(category => {
+        res.status(200).send(category);
+      });
+    } else {
+      res.sendStatus(403);
+    }
+  });
+})
+
+.delete((req, res) => {
   const token = getToken(req);
   jwt.verify(token, jwtSecret, (err, decode) => {
     if (!err && decode.isAdmin && decode.isAdmin === true) {
