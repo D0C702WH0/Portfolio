@@ -3,56 +3,22 @@ const Sequelize = require("sequelize");
 const op = Sequelize.Op;
 const express = require("express");
 const jwt = require("jsonwebtoken");
-// const aws = require("aws-sdk");
-// const multer = require("multer");
-// const multerS3 = require("multer-s3");
+const aws = require("aws-sdk");
+
 const router = express.Router();
 const models = require("../models");
 const getToken = require("../helpers/getToken");
-const upload = require("../helpers/upload");
-// const getFileExtension = require("../helpers/getFileExtension");
-// const s3Password = process.env.AWS_KEY;
-// const s3Id = process.env.AWS_ID;
+
+const s3Password = process.env.AWS_KEY;
+const s3Id = process.env.AWS_ID;
 const jwtSecret = process.env.JWT_SECRET;
+const bucket = process.env.BUCKET
+aws.config.update({
+  secretAccessKey: s3Password,
+  accessKeyId: s3Id
+});
 
-// aws.config.update({
-//   secretAccessKey: s3Password,
-//   accessKeyId: s3Id
-// });
-
-// const s3 = new aws.S3();
-
-// const storage = multerS3({
-//   s3: s3,
-//   acl: "public-read",
-//   bucket: "sideprojectbp",
-//   metadata: function(req, file, cb) {
-//     cb(null, { fieldName: file.fieldname });
-//   },
-//   key: function(req, file, cb) {
-//     cb(null, `${Date.now()}.${getFileExtension(file.mimetype)}`);
-//   }
-// });
-
-// const upload = multer({
-//   dest: "tmp/",
-//   storage,
-//   fileFilter: (req, file, cb) => {
-//     if (
-//       !(
-//         file.mimetype.includes("image/png") ||
-//         file.mimetype.includes("image/jpg") ||
-//         file.mimetype.includes("image/jpeg")
-//       )
-//     ) {
-//       cb(new Error("Mauvais format de fichier"));
-//     }
-//     cb(null, true);
-//   },
-//   limits: {
-//     fileSize: 5 * 1024 * 1024
-//   }
-// });
+const s3 = new aws.S3({ params: { Bucket: bucket } });
 
 router
   .route("/")
@@ -63,9 +29,11 @@ router
     const token = req.headers["x-access-token"];
     jwt.verify(token, jwtSecret, (err, decode) => {
       if (!err && decode.isAdmin && decode.isAdmin === true) {
+        console.log("OFFSET", req.query._start);
+
         models.photo
           .findAndCountAll({
-            offset: 0,
+            offset: req.query._start,
             limit: 10,
             include: [
               {
@@ -85,7 +53,7 @@ router
       else if (!token) {
         models.photo
           .findAndCountAll({
-            offset: 0,
+            offset: req.query.start,
             limit: 10,
             where: { isActive: true },
             include: [
@@ -109,37 +77,56 @@ router
 
   /// Allows to post a new photo as an admin ///
 
-  .post(upload.single("photo"), (req, res) => {
+  .post((req, res) => {
     const token = req.headers["x-access-token"];
-    const photo = {
-      ...req.body,
-      path: req.file.location
+    buf = new Buffer(
+      req.body.photo[0].src.replace(/^data:image\/\w+;base64,/, ""),
+      "base64"
+    );
+    var Data = {
+      Key: req.body.photo[0].title,
+      Body: buf,
+      ContentEncoding: "base64",
+      ACL: "public-read"
     };
-
-    jwt.verify(token, jwtSecret, (err, decode) => {
-      if (
-        !err &&
-        req.file.location &&
-        decode.isAdmin &&
-        decode.isAdmin === true
-      ) {
-        models.photo.create(photo).then(pix => {
-          models.category
-            .findAll({
-              where: {
-                id: {
-                  [op.or]: req.body.categories.split(",")
-                }
-              }
-            })
-            .then(categories => {
-              pix
-                .setCategories(categories)
-                .then(() => res.status(200).send("ok"));
-            });
-        });
+    s3.upload(Data, function(err, data) {
+      if (err) {
+        console.log(`Error uploading data: ${err} `);
       } else {
-        res.sendStatus(403);
+        jwt.verify(token, jwtSecret, (err, decode) => {
+          if (
+            !err &&
+            data.Location &&
+            decode.isAdmin &&
+            decode.isAdmin === true
+          ) {
+            const photo = {
+              id: null,
+              isActive: req.body.isActive,
+              description: req.body.description,
+              name: req.body.name,
+              path: data.Location
+            };
+
+            models.photo.create(photo).then(pix => {
+              models.category
+                .findAll({
+                  where: {
+                    id: {
+                      [op.or]: req.body.id
+                    }
+                  }
+                })
+                .then(categories => {
+                  pix
+                    .setCategories(categories)
+                    .then(() => res.status(200).send("ok"));
+                });
+            });
+          } else {
+            res.sendStatus(403);
+          }
+        });
       }
     });
   });

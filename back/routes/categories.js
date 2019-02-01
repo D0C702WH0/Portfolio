@@ -27,18 +27,20 @@ router
   /// Allows to see all categories as an admin ///
 
   .get((req, res) => {
-    console.log("VA DANS CATEGORIES");
-    
-  const token = req.headers.authorization ? getToken(req) : req.headers["x-access-token"];
+    const token = req.headers.authorization
+      ? getToken(req)
+      : req.headers["x-access-token"];
     jwt.verify(token, jwtSecret, (err, decode) => {
       if (!err && decode.isAdmin && decode.isAdmin === true) {
-        console.log("RECUPERE DECODE");
-        
-        models.category.findAll().then(category => {
-          res.status(200).send(category);
-          console.log("CATEGORY", category);
-          
-        });
+        models.category
+          .findAndCountAll({ offset: 0, limit: 10 })
+          .then(category => {
+            res
+              .status(200)
+              .header("Content-Range", `photo 0-10/${category.count}`)
+              .header("X-Total-Count", category.count)
+              .send(category.rows);
+          });
       } else {
         res.sendStatus(403);
       }
@@ -47,42 +49,43 @@ router
 
 /// Allows to remove active status to a category as an admin ///
 
-router.route("/:id")
+router
+  .route("/:id")
 
-.get((req, res) => {
-  const token = req.headers.authorization
-    ? getToken(req)
-    : req.headers["x-access-token"];
-  jwt.verify(token, jwtSecret, (err, decode) => {
-    if (!err && decode.isAdmin === true) {
-      models.category.findOne().then(category => {
-        res.status(200).send(category);
-      });
-    } else {
-      res.sendStatus(403);
-    }
-  });
-})
-
-.delete((req, res) => {
-  const token = getToken(req);
-  jwt.verify(token, jwtSecret, (err, decode) => {
-    if (!err && decode.isAdmin && decode.isAdmin === true) {
-      models.category
-        .update(
-          {
-            isActive: false
-          },
-          { where: { id: req.params.id } }
-        )
-        .then(category => {
+  .get((req, res) => {
+    const token = req.headers.authorization
+      ? getToken(req)
+      : req.headers["x-access-token"];
+    jwt.verify(token, jwtSecret, (err, decode) => {
+      if (!err && decode.isAdmin === true) {
+        models.category.findOne().then(category => {
           res.status(200).send(category);
         });
-    } else {
-      res.sendStatus(403);
-    }
+      } else {
+        res.sendStatus(403);
+      }
+    });
+  })
+
+  .delete((req, res) => {
+    const token = getToken(req);
+    jwt.verify(token, jwtSecret, (err, decode) => {
+      if (!err && decode.isAdmin && decode.isAdmin === true) {
+        models.category
+          .update(
+            {
+              isActive: false
+            },
+            { where: { id: req.params.id } }
+          )
+          .then(category => {
+            res.status(200).send(category);
+          });
+      } else {
+        res.sendStatus(403);
+      }
+    });
   });
-});
 
 /// Allows to get all active pictures with the same category ///
 

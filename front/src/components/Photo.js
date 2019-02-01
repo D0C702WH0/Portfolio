@@ -17,6 +17,7 @@ import {
   TextField,
   ChipField,
   ArrayField,
+  LongTextInput,
   SingleFieldList,
   BooleanInput
 } from "react-admin";
@@ -61,6 +62,7 @@ export const PhotoCreate = props => (
         <SelectArrayInput optionText="name" />
       </ReferenceArrayInput>
       <ImageInput
+        multiple={true}
         source="photo"
         label="photo"
         accept="image/*"
@@ -68,6 +70,9 @@ export const PhotoCreate = props => (
       >
         <ImageField source="src" title="title" />
       </ImageInput>
+      <LongTextInput source="name" placeholder={<p>Titre de la photo</p>} />
+      <LongTextInput source="description" />
+      <BooleanInput label="Publier" source="isActive" />
     </SimpleForm>
   </Create>
 );

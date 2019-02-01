@@ -19,8 +19,8 @@ app.use(
 //   res.header("Content-Range", "X-Total-Count");
 //   next();
 // });
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true, limit:"100mb" }));
+app.use(bodyParser.json({limit:"100mb"}));
 app.use(morgan("dev"));
 
 app.use("/auth", routerAuth);
