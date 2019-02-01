@@ -7,10 +7,11 @@ const aws = require("aws-sdk");
 const router = express.Router();
 const models = require("../models");
 const getToken = require("../helpers/getToken");
+const getFileExtension = require("../helpers/getFileExtension");
 const s3Password = process.env.AWS_KEY;
 const s3Id = process.env.AWS_ID;
 const jwtSecret = process.env.JWT_SECRET;
-const bucket = process.env.BUCKET
+const bucket = process.env.BUCKET;
 aws.config.update({
   secretAccessKey: s3Password,
   accessKeyId: s3Id
@@ -27,8 +28,6 @@ router
     const token = req.headers["x-access-token"];
     jwt.verify(token, jwtSecret, (err, decode) => {
       if (!err && decode.isAdmin && decode.isAdmin === true) {
-        console.log("OFFSET", req.query._start);
-
         models.photo
           .findAndCountAll({
             offset: req.query._start,
@@ -81,8 +80,9 @@ router
       req.body.photo[0].src.replace(/^data:image\/\w+;base64,/, ""),
       "base64"
     );
-    var Data = {
-      Key: req.body.photo[0].title,
+    const name = req.body.photo[0].title;
+    const Data = {
+      Key: `${Date.now()}.${getFileExtension(name)}`,
       Body: buf,
       ContentEncoding: "base64",
       ACL: "public-read"
