@@ -4,11 +4,9 @@ const op = Sequelize.Op;
 const express = require("express");
 const jwt = require("jsonwebtoken");
 const aws = require("aws-sdk");
-
 const router = express.Router();
 const models = require("../models");
 const getToken = require("../helpers/getToken");
-
 const s3Password = process.env.AWS_KEY;
 const s3Id = process.env.AWS_ID;
 const jwtSecret = process.env.JWT_SECRET;
